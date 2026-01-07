@@ -95,6 +95,28 @@ if [ -n "$DOTFILES_REPO" ]; then
     [ -f "$HOME/dotfiles/install.sh" ] && $HOME/dotfiles/install.sh
 fi
 
-echo "[$PREFIX] Starting code-server..."
-# Now we can run code-server with the default entrypoint
-/usr/bin/entrypoint.sh --bind-addr 0.0.0.0:8080 $START_DIR
+# =========== PANDA: Git repo auto-clone ===========
+PANDA_REPO="${PANDA_REPO:-https://github.com/NateSmve/PANDA-Pro.git}"
+PANDA_DIR="$START_DIR/PANDA-Pro"
+
+if [ -d "$PANDA_DIR/.git" ]; then
+    echo "[$PREFIX] PANDA-Pro already cloned, pulling latest..."
+    cd "$PANDA_DIR" && git pull origin master || true
+    cd /home/coder
+else
+    echo "[$PREFIX] Cloning PANDA-Pro repository..."
+    git clone "$PANDA_REPO" "$PANDA_DIR" || echo "[$PREFIX] Clone failed, continuing..."
+fi
+
+# =========== Start services ===========
+
+echo "[$PREFIX] Starting code-server on internal port 8081..."
+# Start code-server in background on port 8081 (internal only)
+/usr/bin/entrypoint.sh --bind-addr 127.0.0.1:8081 --auth none $START_DIR &
+
+# Wait for code-server to start
+sleep 3
+
+echo "[$PREFIX] Starting auth proxy on port ${PORT:-8080}..."
+# Start auth proxy in foreground (this is what Railway monitors)
+cd /home/coder/auth-proxy && exec node proxy.js

@@ -1,0 +1,15 @@
+{
+  "name": "code-server-auth-proxy",
+  "version": "1.0.0",
+  "description": "Firebase auth proxy for code-server",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}

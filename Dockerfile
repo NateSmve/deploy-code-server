@@ -48,6 +48,19 @@ RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension yzhang.markdown-all-in-one \
     && code-server --install-extension ms-azuretools.vscode-docker
 
+# =========== AUTH PROXY ===========
+
+# Copy and install auth proxy
+COPY --chown=coder:coder auth-proxy /home/coder/auth-proxy
+WORKDIR /home/coder/auth-proxy
+RUN npm install --production
+
+WORKDIR /home/coder
+
+# Environment variables for auth proxy
+ENV AUTH_PORTAL_URL=https://auth.pandawsu.com
+ENV CODE_SERVER_INTERNAL_URL=http://localhost:8081
+
 # ===========
 
 # Port
