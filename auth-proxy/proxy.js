@@ -7,8 +7,10 @@ const app = express();
 app.use(cookieParser());
 
 // Initialize Firebase Admin
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
-  ? JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_JSON, 'base64').toString())
+// Support both FIREBASE_SERVICE_ACCOUNT (your naming) and FIREBASE_SERVICE_ACCOUNT_JSON
+const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+const serviceAccount = serviceAccountEnv
+  ? JSON.parse(Buffer.from(serviceAccountEnv, 'base64').toString())
   : null;
 
 if (serviceAccount) {
@@ -27,10 +29,10 @@ if (serviceAccount) {
 const db = admin.firestore();
 
 // Config
-const AUTH_PORTAL_URL = process.env.AUTH_PORTAL_URL || 'https://auth.pandawsu.com';
+const LOGIN_URL = process.env.LOGIN_URL || 'https://manage.pandawsu.com/login';
 const CODE_SERVER_URL = process.env.CODE_SERVER_INTERNAL_URL || 'http://localhost:8081';
 const ALLOWED_ROLES = ['admin', 'dev'];
-const SESSION_COOKIE_NAME = 'session'; // Match your auth portal's cookie name
+const SESSION_COOKIE_NAME = '__session'; // Match staff-dashboard/customer-portal cookie name
 
 // Auth middleware
 async function authMiddleware(req, res, next) {
@@ -88,7 +90,7 @@ async function authMiddleware(req, res, next) {
             <h1>Access Denied</h1>
             <p>You need <strong>admin</strong> or <strong>dev</strong> role to access code-server.</p>
             <p>Your current role: <strong>${userRole}</strong></p>
-            <p><a href="${AUTH_PORTAL_URL}">Return to login</a></p>
+            <p><a href="${LOGIN_URL}">Return to login</a></p>
           </div>
         </body>
         </html>
@@ -107,7 +109,7 @@ async function authMiddleware(req, res, next) {
 
 function redirectToAuth(req, res) {
   const currentUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-  const redirectUrl = `${AUTH_PORTAL_URL}/login?redirect=${encodeURIComponent(currentUrl)}`;
+  const redirectUrl = `${LOGIN_URL}/login?redirect=${encodeURIComponent(currentUrl)}`;
   return res.redirect(redirectUrl);
 }
 
@@ -145,6 +147,6 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Auth proxy listening on port ${PORT}`);
   console.log(`Proxying to code-server at ${CODE_SERVER_URL}`);
-  console.log(`Auth portal: ${AUTH_PORTAL_URL}`);
+  console.log(`Auth portal: ${LOGIN_URL}`);
   console.log(`Allowed roles: ${ALLOWED_ROLES.join(', ')}`);
 });

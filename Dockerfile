@@ -58,7 +58,7 @@ RUN npm install --production
 WORKDIR /home/coder
 
 # Environment variables for auth proxy
-ENV AUTH_PORTAL_URL=https://auth.pandawsu.com
+ENV LOGIN_URL=https://manage.pandawsu.com/login
 ENV CODE_SERVER_INTERNAL_URL=http://localhost:8081
 
 # ===========
