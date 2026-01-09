@@ -54,11 +54,67 @@ Add this to Railway environment variables.
 
 ## Environment Variables
 
-### Optional
+### Optional (for MCP Servers)
+
+Some MCP servers require API keys or credentials. Add these to Railway if you want to use them:
+
+```bash
+# GitHub MCP server
+GITHUB_TOKEN=ghp_...              # Personal access token for GitHub operations
+
+# Brave Search MCP server
+BRAVE_API_KEY=...                 # API key from brave.com/search/api
+
+# Slack MCP server
+SLACK_BOT_TOKEN=xoxb-...          # Slack bot token
+SLACK_TEAM_ID=T...                # Slack workspace ID
+
+# Google Drive MCP server
+GOOGLE_DRIVE_CREDENTIALS=...      # OAuth credentials JSON (base64)
+
+# PostgreSQL MCP server
+DATABASE_URL=postgresql://...     # Connection string (if using external DB)
+```
+
+**Note:** These are only needed if you plan to use those specific MCP servers. Basic functionality (filesystem, memory, sequential-thinking) works without any env vars.
+
+### System Variables
 
 ```bash
 CLAUDE_DATA_DIR=/home/coder/.claude  # Already set in Dockerfile
 ```
+
+## Pre-installed MCP Servers
+
+The Docker image includes these MCP servers ready to use:
+
+### File & Data Access
+- **filesystem** - Read/write local files and directories
+- **sqlite** - SQLite database operations
+- **postgres** - PostgreSQL database access (for PANDA data)
+
+### Development Tools
+- **github** - GitHub API (create issues, PRs, search repos)
+- **fetch** - Make HTTP requests and API calls
+- **puppeteer** - Browser automation for testing
+
+### Knowledge & Search
+- **brave-search** - Web search capabilities
+- **memory** - Persistent knowledge graph storage
+- **sequential-thinking** - Enhanced reasoning for complex problems
+
+### Integrations
+- **slack** - Slack workspace integration
+- **gdrive** - Google Drive file access
+
+### How to Enable MCP Servers
+
+On first use, Claude CLI will prompt you to enable MCP servers. You can also configure them manually:
+
+1. Run `claude` in the terminal
+2. When prompted about MCP servers, select which ones to enable
+3. Provide any required credentials (API keys, tokens)
+4. Configuration is saved in `/home/coder/.claude` (persists via volume)
 
 ## Using Claude Code CLI
 

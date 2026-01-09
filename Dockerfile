@@ -59,6 +59,52 @@ RUN mkdir -p /home/coder/.claude && sudo chown -R coder:coder /home/coder/.claud
 # Environment variable for Claude storage path (Railway volume can mount here)
 ENV CLAUDE_DATA_DIR=/home/coder/.claude
 
+# =========== MCP SERVERS ===========
+
+# Install common MCP servers globally
+# Filesystem - Access and manipulate local files
+RUN sudo npm install -g @modelcontextprotocol/server-filesystem
+
+# GitHub - GitHub API integration (issues, PRs, repos)
+RUN sudo npm install -g @modelcontextprotocol/server-github
+
+# PostgreSQL - Database access for PANDA Firebase/Postgres
+RUN sudo npm install -g @modelcontextprotocol/server-postgres
+
+# Brave Search - Web search capabilities
+RUN sudo npm install -g @modelcontextprotocol/server-brave-search
+
+# Memory - Persistent knowledge graph storage
+RUN sudo npm install -g @modelcontextprotocol/server-memory
+
+# Fetch - HTTP requests and API calls
+RUN sudo npm install -g @modelcontextprotocol/server-fetch
+
+# Puppeteer - Browser automation
+RUN sudo npm install -g @modelcontextprotocol/server-puppeteer
+
+# Slack - Slack integration
+RUN sudo npm install -g @modelcontextprotocol/server-slack
+
+# Google Drive - Google Drive file access
+RUN sudo npm install -g @modelcontextprotocol/server-gdrive
+
+# Sequential Thinking - Enhanced reasoning
+RUN sudo npm install -g @modelcontextprotocol/server-sequential-thinking
+
+# Python-based MCP servers (SQLite, etc.)
+USER root
+RUN apt-get update && apt-get install -y python3-pip python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python MCP servers
+RUN pip3 install --break-system-packages mcp-server-sqlite
+
+USER coder
+
+# Create MCP config directory
+RUN mkdir -p /home/coder/.claude/mcp && sudo chown -R coder:coder /home/coder/.claude/mcp
+
 # =========== AUTH PROXY ===========
 
 # Copy and install auth proxy
