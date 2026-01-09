@@ -48,6 +48,17 @@ RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension yzhang.markdown-all-in-one \
     && code-server --install-extension ms-azuretools.vscode-docker
 
+# =========== CLAUDE CODE CLI ===========
+
+# Install Claude Code CLI globally
+RUN sudo npm install -g @anthropic/claude-code
+
+# Create directory for Claude storage (can be mounted to Railway volume)
+RUN mkdir -p /home/coder/.claude && sudo chown -R coder:coder /home/coder/.claude
+
+# Environment variable for Claude storage path (Railway volume can mount here)
+ENV CLAUDE_DATA_DIR=/home/coder/.claude
+
 # =========== AUTH PROXY ===========
 
 # Copy and install auth proxy
