@@ -96,16 +96,28 @@ if [ -n "$DOTFILES_REPO" ]; then
 fi
 
 # =========== PANDA: Git repo auto-clone ===========
-PANDA_REPO="${PANDA_REPO:-https://github.com/NateSmve/PANDA-Pro.git}"
 PANDA_DIR="$START_DIR/PANDA-Pro"
+
+# Build authenticated git URL if token is provided
+if [ -n "$GITHUB_TOKEN" ]; then
+    PANDA_REPO="https://${GITHUB_TOKEN}@github.com/NateSmve/PANDA-Pro.git"
+    echo "[$PREFIX] Using GitHub token for authentication"
+else
+    PANDA_REPO="${PANDA_REPO:-https://github.com/NateSmve/PANDA-Pro.git}"
+    echo "[$PREFIX] WARNING: No GITHUB_TOKEN set - clone may fail for private repos"
+fi
 
 if [ -d "$PANDA_DIR/.git" ]; then
     echo "[$PREFIX] PANDA-Pro already cloned, pulling latest..."
-    cd "$PANDA_DIR" && git pull origin master || true
+    cd "$PANDA_DIR" && git pull origin master || echo "[$PREFIX] Pull failed"
     cd /home/coder
 else
     echo "[$PREFIX] Cloning PANDA-Pro repository..."
-    git clone "$PANDA_REPO" "$PANDA_DIR" || echo "[$PREFIX] Clone failed, continuing..."
+    if git clone "$PANDA_REPO" "$PANDA_DIR" 2>&1; then
+        echo "[$PREFIX] Successfully cloned PANDA-Pro"
+    else
+        echo "[$PREFIX] ERROR: Clone failed - check GITHUB_TOKEN or repo access"
+    fi
 fi
 
 # =========== Start services ===========
