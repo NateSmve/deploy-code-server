@@ -29,15 +29,30 @@ If you prefer to store Claude data in Firestore alongside other PANDA data, you 
 
 **Note:** Railway Volume is simpler and recommended for code-server use cases.
 
-## Environment Variables
+## Authentication
 
-Add these to your Railway service:
+Claude Code CLI supports two authentication methods:
 
-### Required
+### Option 1: claude.ai Account (Recommended)
+
+No environment variables needed! On first use, Claude CLI will:
+1. Prompt you to authenticate via browser
+2. Open a URL to link your claude.ai account
+3. Store authentication tokens in `/home/coder/.claude`
+
+**This is why the Railway volume is important** - it persists your authentication across container restarts.
+
+### Option 2: API Key (Alternative)
+
+If you prefer to use an API key instead:
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-...  # Your Claude API key from console.anthropic.com
+ANTHROPIC_API_KEY=sk-ant-...  # Your API key from console.anthropic.com
 ```
+
+Add this to Railway environment variables.
+
+## Environment Variables
 
 ### Optional
 
@@ -72,14 +87,20 @@ Claude Code CLI integrates with the terminal. You can:
 - Use Claude to analyze files in your workspace
 - Get help with debugging, refactoring, etc.
 
-## Verifying Installation
+## First-Time Setup
 
 After deploying:
 
 1. Open code-server at `code.pandawsu.com`
 2. Open a terminal (Terminal → New Terminal)
-3. Run: `claude --version`
-4. You should see the Claude Code CLI version
+3. Run: `claude --version` (verify installation)
+4. Run: `claude` to start first-time authentication
+5. Follow the prompts to authenticate with your claude.ai account
+6. Copy the URL shown and open it in your browser
+7. Log in with your claude.ai credentials
+8. Return to the terminal - you're now authenticated!
+
+Your authentication will be saved in `/home/coder/.claude` and persist across restarts (thanks to the Railway volume).
 
 ## Storage Location
 
@@ -98,13 +119,21 @@ When mounted to a Railway volume, this data persists across deployments.
 - Verify npm global packages are in PATH
 - Try: `sudo npm install -g @anthropic/claude-code`
 
-### "Authentication failed"
+### "Not authenticated" or "Please log in"
 
-- Verify `ANTHROPIC_API_KEY` is set in Railway environment variables
-- Check the API key is valid at console.anthropic.com
+- Run `claude` in the terminal to start authentication flow
+- Make sure you can access the authentication URL from your browser
+- If re-authenticating doesn't work, the Railway volume might not be mounted
+
+### Authentication not persisting after restart
+
+- **Most common issue:** Railway volume not mounted
+- Go to Railway → Volumes → Verify `/home/coder/.claude` is mounted
+- After adding volume, redeploy the service
+- Re-authenticate one more time after the volume is mounted
 
 ### Storage not persisting
 
 - Verify Railway volume is mounted at `/home/coder/.claude`
-- Check volume size isn't full
+- Check volume size isn't full (1GB should be plenty)
 - Restart the service after adding the volume
